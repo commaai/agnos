@@ -14,6 +14,8 @@ if [ ! -f $FASTBOOT ]; then
   rm -f platform-tools.zip
 fi
 
+echo "Please enter your computer password when prompted"
+
 sudo $FASTBOOT --set-active=a
 sudo $FASTBOOT flash xbl_a xbl.img
 sudo $FASTBOOT flash xbl_config_a xbl_config.img
