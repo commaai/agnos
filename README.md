@@ -9,6 +9,7 @@ In order to put your device into fastboot mode:
 1. Connect power to the OBD-C port (port 1).
 2. Then, quickly connect the comma three to your computer using the USB-C port (port 2).
 3. After a few seconds, the device should indicate it's in fastboot mode and show its serial number.
+4. If you cannot get your device into fastboot mode connecting to a Windows computer, run a Linux distro on your Windows computer (polling issue)
 
 ![](fastboot.jpg)
 
