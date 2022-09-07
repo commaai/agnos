@@ -14,14 +14,33 @@ if [ ! -f $FASTBOOT ]; then
   rm -f platform-tools.zip
 fi
 
-echo "Please enter your computer password if prompted"
+echo "Enter your computer password if prompted"
 
-sudo $FASTBOOT --set-active=a
-sudo $FASTBOOT flash xbl_a xbl.img
-sudo $FASTBOOT flash xbl_config_a xbl_config.img
-sudo $FASTBOOT flash abl_a abl.img
-sudo $FASTBOOT flash boot_a boot.img
-sudo $FASTBOOT flash system_a system.img
+CURRENT_SLOT="$(sudo $FASTBOOT getvar current-slot 2>&1 | grep current-slot | cut -d' ' -f2-)"
+if [ "$CURRENT_SLOT" == "a" ]; then
+  NEW_SLOT="b"
+elif [ "$CURRENT_SLOT" == "b" ]; then
+  NEW_SLOT="a"
+else
+  echo "Current slot invalid: '$CURRENT_SLOT'"
+  exit 1
+fi
+
+echo "Current slot: $CURRENT_SLOT"
+echo "Flashing slot: $NEW_SLOT"
+
+# flash non-active slot
+sudo $FASTBOOT flash xbl_$NEW_SLOT xbl.img
+sudo $FASTBOOT flash xbl_config_$NEW_SLOT xbl_config.img
+sudo $FASTBOOT flash abl_$NEW_SLOT abl.img
+sudo $FASTBOOT flash boot_$NEW_SLOT boot.img
+sudo $FASTBOOT flash system_$NEW_SLOT system.img
+
+# swap to newly flashed slot
+sudo $FASTBOOT --set-active=$NEW_SLOT
+
+# wipe device
 sudo $FASTBOOT format:ext4 userdata
 sudo $FASTBOOT format cache
+
 sudo $FASTBOOT continue
