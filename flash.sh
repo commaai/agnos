@@ -34,7 +34,7 @@ sudo $FASTBOOT flash xbl_$NEW_SLOT xbl.img
 sudo $FASTBOOT flash xbl_config_$NEW_SLOT xbl_config.img
 sudo $FASTBOOT flash abl_$NEW_SLOT abl.img
 sudo $FASTBOOT flash boot_$NEW_SLOT boot.img
-sudo $FASTBOOT flash system_a system.img
+sudo $FASTBOOT flash system_$NEW_SLOT system.img
 
 # swap to newly flashed slot
 sudo $FASTBOOT --set-active=$NEW_SLOT
