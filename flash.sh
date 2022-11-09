@@ -2,7 +2,7 @@
 
 FASTBOOT=platform-tools/fastboot
 
-VERSION="r28.0.2"
+VERSION="r33.0.3"
 PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
 if [ ! -f $FASTBOOT ]; then
