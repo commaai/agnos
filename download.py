@@ -48,10 +48,17 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Download AGNOS')
   parser.add_argument('--master', action='store_true',
                       help='Download AGNOS version used in the master branch')
+  parser.add_argument('--manifest', nargs='?',
+                      help='Download AGNOS from the manifest at this URL')
 
   args = parser.parse_args()
 
-  manifest = MASTER_MANIFEST if args.master else RELEASE_MANIFEST
+  manifest = RELEASE_MANIFEST
+  if args.manifest is not None:
+    manifest = args.manifest
+  elif args.master:
+    manifest = MASTER_MANIFEST
+
   r = requests.get(manifest)
   r.raise_for_status()
 
