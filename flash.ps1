@@ -14,6 +14,8 @@ if (Test-Path -path $fastboot) {
 }
 
 Invoke-Expression "$($fastboot) --set-active=a"
+Invoke-Expression "$($fastboot) flash devcfg_a devcfg.img"
+Invoke-Expression "$($fastboot) flash aop_a aop.img"
 Invoke-Expression "$($fastboot) flash xbl_a xbl.img"
 Invoke-Expression "$($fastboot) flash xbl_config_a xbl_config.img"
 Invoke-Expression "$($fastboot) flash abl_a abl.img"

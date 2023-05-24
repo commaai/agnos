@@ -30,6 +30,8 @@ echo "Current slot: $CURRENT_SLOT"
 echo "Flashing slot: $NEW_SLOT"
 
 # flash non-active slot
+sudo $FASTBOOT flash aop_$NEW_SLOT aop.img
+sudo $FASTBOOT flash devcfg_$NEW_SLOT devcfg.img
 sudo $FASTBOOT flash xbl_$NEW_SLOT xbl.img
 sudo $FASTBOOT flash xbl_config_$NEW_SLOT xbl_config.img
 sudo $FASTBOOT flash abl_$NEW_SLOT abl.img
