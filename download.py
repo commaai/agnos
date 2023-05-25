@@ -44,6 +44,12 @@ def download_and_decompress(url, hash, filename):
   print(f"Downloading '{filename}': 100%")
   assert(sha256.hexdigest().lower() == hash.lower())
 
+def load_manifest(url):
+  r = requests.get(url)
+  r.raise_for_status()
+  return json.loads(r.content.decode())
+
+
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Download AGNOS')
   parser.add_argument('--master', action='store_true',
@@ -59,9 +65,6 @@ if __name__ == "__main__":
   elif args.master:
     manifest = MASTER_MANIFEST
 
-  r = requests.get(manifest)
-  r.raise_for_status()
-
-  update = json.loads(r.content.decode())
+  update = load_manifest(manifest)
   for partition in update:
     download_and_decompress(partition['url'], partition['hash'], f"{partition['name']}.img")
