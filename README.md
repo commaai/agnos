@@ -2,6 +2,10 @@
 
 AGNOS is the Ubuntu-based operating system for your [comma three devkit](https://comma.ai/shop/products/three).
 
+## web flasher
+
+If you're looking for the easiest way to reflash your comma three to stock, check out [flash.comma.ai](https://flash.comma.ai/) instead.
+
 ## Fastboot
 
 In order to put your device into fastboot mode:
