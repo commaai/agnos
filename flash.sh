@@ -14,6 +14,19 @@ if [ ! -f $FASTBOOT ]; then
   rm -f platform-tools.zip
 fi
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+EDL=$DIR/edl
+
+if [! -f  $EDL ]; then
+  git clone https://github.com/bkerler/edl
+  cd $DIR/edl
+  #git fetch --all if we want certain commit
+  git submodule update --depth=1 --init --recursive
+  python -m pip3 install -r requirements.txt
+  # edl uses fastboot
+  export PATH=$PATH:$DIR/platform-tools
+fi
+
 echo "Enter your computer password if prompted"
 
 CURRENT_SLOT="$(sudo $FASTBOOT getvar current-slot 2>&1 | grep current-slot | cut -d' ' -f2-)"
@@ -29,17 +42,22 @@ fi
 echo "Current slot: $CURRENT_SLOT"
 echo "Flashing slot: $NEW_SLOT"
 
+edlFlash() {
+  sudo $EDL w "$@"
+}
+
 # flash non-active slot
-sudo $FASTBOOT flash aop_$NEW_SLOT aop.img
-sudo $FASTBOOT flash devcfg_$NEW_SLOT devcfg.img
-sudo $FASTBOOT flash xbl_$NEW_SLOT xbl.img
-sudo $FASTBOOT flash xbl_config_$NEW_SLOT xbl_config.img
-sudo $FASTBOOT flash abl_$NEW_SLOT abl.img
-sudo $FASTBOOT flash boot_$NEW_SLOT boot.img
-sudo $FASTBOOT flash system_$NEW_SLOT system.img
+edlFlash aop_$NEW_SLOT aop.img
+edlFlash devcfg_$NEW_SLOT devcfg.img
+edlFlash xbl_$NEW_SLOT xbl.img
+edlFlash xbl_config_$NEW_SLOT xbl_config.img
+edlFlash abl_$NEW_SLOT abl.img
+edlFlash boot_$NEW_SLOT boot.img
+edlFlash system_$NEW_SLOT system.img
+
 
 # swap to newly flashed slot
-sudo $FASTBOOT --set-active=$NEW_SLOT
+sudo $EDL_DIR/edl setactiveslot $NEW_SLOT
 
 # wipe device
 sudo $FASTBOOT format:ext4 userdata
