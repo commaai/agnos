@@ -15,14 +15,14 @@ if [ ! -f $FASTBOOT ]; then
 fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-EDL=$DIR/edl
+EDL_DIR=$DIR/edl
 
-if [! -f  $EDL ]; then
-  git clone https://github.com/bkerler/edl
-  cd $DIR/edl
+if [! -d  $EDL_DIR ]; then
+  git clone https://github.com/bkerler/edl edl
+  cd $EDL_DIR
   #git fetch --all if we want certain commit
   git submodule update --depth=1 --init --recursive
-  python -m pip3 install -r requirements.txt
+  python -m pip3 install -r $EDL_DIR/requirements.txt
   # edl uses fastboot
   export PATH=$PATH:$DIR/platform-tools
 fi
@@ -43,7 +43,7 @@ echo "Current slot: $CURRENT_SLOT"
 echo "Flashing slot: $NEW_SLOT"
 
 edlFlash() {
-  sudo $EDL w "$@"
+  sudo $EDL_DIR/edl w "$@"
 }
 
 # flash non-active slot
