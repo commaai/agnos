@@ -13,14 +13,31 @@ if (Test-Path -path $fastboot) {
     Remove-Item "platform-tools.zip"
 }
 
-Invoke-Expression "$($fastboot) --set-active=a"
-Invoke-Expression "$($fastboot) flash devcfg_a devcfg.img"
-Invoke-Expression "$($fastboot) flash aop_a aop.img"
-Invoke-Expression "$($fastboot) flash xbl_a xbl.img"
-Invoke-Expression "$($fastboot) flash xbl_config_a xbl_config.img"
-Invoke-Expression "$($fastboot) flash abl_a abl.img"
-Invoke-Expression "$($fastboot) flash boot_a boot.img"
-Invoke-Expression "$($fastboot) flash system_a system.img"
+$edl = "edl/edl"
+if (Test-Path -path $edl) {
+    Write-Host 'EDL tool found'
+} else {
+    Write-Host "Downloading and setting up EDL"
+    git clone https://github.com/bkerler/edl.git edl
+    cd edl
+    git submodule --init --recursive
+    Invoke-Expression "python -m pip3 install requirements.txt"
+
+    Write-Host "Downloading and setting up UsbDk"
+    $client = new-object System.Net.WebClient
+    $client.DownloadFile("https://github.com/daynix/UsbDk/releases/download/v1.00-22/UsbDk_1.0.22_x86.msi", "UsbDk_1.0.22_x86.msi")
+    Start-Process -FilePath msiexec.exe -ArgumentList "/i UsbDk_1.0.22_x86.msi /qn"
+    Remove-Item "UsbDk_1.0.22_x86.msi"
+}
+
+Invoke-Expression "$($edl) setactiveslot a --serial"
+Invoke-Expression "$($edl) w devcfg_a devcfg.img --serial"
+Invoke-Expression "$($edl) w aop_a aop.img --serial --serial"
+Invoke-Expression "$($edl) w xbl_a xbl.img --serial"
+Invoke-Expression "$($edl) w xbl_config_a xbl_config.img --serial"
+Invoke-Expression "$($edl) w abl_a abl.img --serial"
+Invoke-Expression "$($edl) w boot_a boot.img --serial"
+Invoke-Expression "$($edl) w system_a system.img --serial"
 
 Invoke-Expression "$($fastboot) format:ext4 userdata"
 Invoke-Expression "$($fastboot) format cache"
