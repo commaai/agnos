@@ -20,8 +20,9 @@ if (Test-Path -path $edl) {
     Write-Host "Downloading and setting up EDL"
     git clone https://github.com/bkerler/edl.git edl
     cd edl
-    git submodule --init --recursive
+    git submodule update --depth=1 --init --recursive
     Invoke-Expression "python -m pip3 install requirements.txt"
+    cd ..
 
     Write-Host "Downloading and setting up UsbDk"
     $client = new-object System.Net.WebClient
