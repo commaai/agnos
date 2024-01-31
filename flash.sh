@@ -39,4 +39,4 @@ edlFlash system_$FLASH_SLOT system.img
 #sudo $FASTBOOT format:ext4 userdata
 #sudo $FASTBOOT format cache
 
-$EDL/eld reset
+$EDL/edl reset
