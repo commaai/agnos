@@ -1,48 +1,39 @@
 #!/bin/bash -e
 
-FASTBOOT=platform-tools/fastboot
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+EDL=$DIR/edl_repo/edl
 
-VERSION="r33.0.3"
-PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')"
-
-if [ ! -f $FASTBOOT ]; then
-  rm -rf platform-tools
-  rm -f platform-tools-latest-$PLATFORM.zip
-
-  curl -L https://dl.google.com/android/repository/platform-tools_$VERSION-$PLATFORM.zip --output platform-tools.zip
-  unzip platform-tools.zip
-  rm -f platform-tools.zip
+if [! -f  $EDL ]; then
+  git clone https://github.com/bkerler/edl $DIR/edl_repo
+  cd $DIR/edl_repo
+  git submodule update --depth=1 --init --recursive
+  python -m pip3 install -r requirements.txt
+  #sudo apt purge -y modemmanager ?
+  sudo systemctl stop ModemManager
+  cd $DIR
 fi
 
 echo "Enter your computer password if prompted"
 
-CURRENT_SLOT="$(sudo $FASTBOOT getvar current-slot 2>&1 | grep current-slot | cut -d' ' -f2-)"
-if [ "$CURRENT_SLOT" == "a" ]; then
-  NEW_SLOT="b"
-elif [ "$CURRENT_SLOT" == "b" ]; then
-  NEW_SLOT="a"
-else
-  echo "Current slot invalid: '$CURRENT_SLOT'"
-  exit 1
-fi
+FLASH_SLOT="a"
+echo "Flashing slot: $FLASH_SLOT"
 
-echo "Current slot: $CURRENT_SLOT"
-echo "Flashing slot: $NEW_SLOT"
+# this always flash to partition "a"
+$EDL --memory=ufs
+$EDL setactiveslot a
 
 # flash non-active slot
-sudo $FASTBOOT flash aop_$NEW_SLOT aop.img
-sudo $FASTBOOT flash devcfg_$NEW_SLOT devcfg.img
-sudo $FASTBOOT flash xbl_$NEW_SLOT xbl.img
-sudo $FASTBOOT flash xbl_config_$NEW_SLOT xbl_config.img
-sudo $FASTBOOT flash abl_$NEW_SLOT abl.img
-sudo $FASTBOOT flash boot_$NEW_SLOT boot.img
-sudo $FASTBOOT flash system_$NEW_SLOT system.img
+$EDL w aop_$FLASH_SLOT aop.img
+$EDL w devcfg_$FLASH_SLOT devcfg.img
+$EDL w xbl_$FLASH_SLOT xbl.img
+$EDL w xbl_config_$FLASH_SLOT xbl_config.img
+$EDL w abl_$FLASH_SLOT abl.img
+$EDL w boot_$FLASH_SLOT boot.img
+$EDL w system_$FLASH_SLOT system.img
 
-# swap to newly flashed slot
-sudo $FASTBOOT --set-active=$NEW_SLOT
 
 # wipe device
-sudo $FASTBOOT format:ext4 userdata
-sudo $FASTBOOT format cache
+$EDL e userdata
+$EDL e cache
 
-sudo $FASTBOOT continue
+$EDL/edl reset
